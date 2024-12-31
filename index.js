@@ -1,42 +1,88 @@
 const ctx = document.querySelector("#canvas").getContext('2d');
-const xOffset = 350;
-const yOffset = 100;
+const canvasWidth = ctx.width;
+const canvasHeight = ctx.height;
+const fieldOffsetX = 350;
+const fieldOffsetY = 100;
+
+class Field{
+	constructor(){
+		this.blocks = [
+			[0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0]
+		];
+	}
+
+	place(tetromino){
+		if(tetromino.x > 9 || tetromino.x < 0 || tetromino.y > 19 || tetromino.y < 0)
+			throw new RangeError("Tetromino can't be placed outside field boundary.");
+	}
+}
 
 class Tetromino{
-	constructor(blocks) {
+	constructor(blocks, x, y, color) {
 		this.blocks = blocks;
+		this.x = x;
+		this.y = y;
+		this.color = color;
+	}
+
+	rotate(){
+		//TODO:
 	}
 }
 
 const drawTetromino = (tetromino) =>{
-	if(tetrominoPosY > 18 * 30)
-		tetrominoPosY = 18 * 30;
-	ctx.fillStyle = "#ff00ff";
-	for(let i = 0; i < tetromino.length; i++){
-		for(let j = 0; j < tetromino[i].length; j++){
-			if(tetromino[i][j] === 1){
-				ctx.fillRect(xOffset + i*30 + tetrominoPosX, yOffset + j*30 + tetrominoPosY, 28, 28);
-			}
-		}
-	}
+	//TODO:
 }
 
-const drawField = () =>{
-	ctx.fillStyle = "#00ffff";
-	for(let i = 0; i < 10; i++){
-		for(let j = 0; j < 20; j++){
-			ctx.fillRect(xOffset + i*30, yOffset + j*30, 28, 28);
+const renderField = (field) =>{
+	for(let i = 0; i < field.blocks.length; i++){
+		for(let j = 0; j < field.blocks[i].length; j++){
+			switch(field.blocks[i][j]){
+				case 0:
+					ctx.fillStyle = "#90ffff";
+					ctx.fillRect(fieldOffsetX + j*30, fieldOffsetY + i*30, 28, 28);
+					break;
+				default:
+					throw new Error("Invalid value on field");
+			}
 		}
 	}
 };
 
-function step(timestamp) {
+const randomizeTetromino = () =>{
+	//TODO:
+}
+
+const update = () =>{
+	currentTetromino.y += 1;
+	field.place(currentTetromino);
+}
+
+const step = (timestamp) =>{
 	const elapsed = timestamp % 1000;
 	if(elapsed > 990){
-		tetrominoPosY += 30;
-		ctx.clearRect(0, 0, 1000, 800);
-		drawField();
-		drawTetromino(tetromino);
+		update();
+		ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+		renderField();
 	}
 	requestAnimationFrame(step);
 }
@@ -45,7 +91,10 @@ function step(timestamp) {
 const squareBlocks = [[1, 1],
 					  [1, 1]];
 
-const square = new Tetromino(squareBlocks);
-drawField();
-drawTetromino(tetromino);
-requestAnimationFrame(step);
+const square = new Tetromino(squareBlocks, 4, 19);
+let currentTetromino = square;
+const field = new Field();
+
+renderField(field);
+field.place(square);
+//requestAnimationFrame(step);

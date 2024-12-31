@@ -1,5 +1,11 @@
+body{
+	background-color: #203050;
+}
+
 #game{
 	margin: auto;
 	width: 1000px;
-	background-color: #203050;
+	background-color: #202040;
+	border: whitesmoke 2px solid;
+	border-radius: 10px;
 }
