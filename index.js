@@ -5,12 +5,13 @@ const fieldOffsetX = 350;
 const fieldOffsetY = 100;
 
 const Colors = Object.freeze({
-	RED: 1,
-	BLUE: 2,
-	GREEN: 3,
-	YELLOW: 4,
-	TEAL: 5,
-	PURPLE: 6
+	TEAL: 1,
+	YELLOW: 2,
+	PURPLE: 3,
+	BLUE: 4,
+	ORANGE: 5,
+	GREEN: 6,
+	RED: 7
 });
 
 class Game{
@@ -74,23 +75,26 @@ class Game{
 		for(let i = 0; i < this.field.length; i++){
 			for(let j = 0; j < this.field[i].length; j++){
 				switch(this.field[i][j]){
-					case Colors.RED:
-						ctx.fillStyle = "#dd3030";
+					case Colors.TEAL:
+						ctx.fillStyle = "#90dddd";
+						break;
+					case Colors.YELLOW:
+						ctx.fillStyle = "#cccc30";
+						break;
+					case Colors.PURPLE:
+						ctx.fillStyle = "#bb30bb";
 						break;
 					case Colors.BLUE:
 						ctx.fillStyle = "#3030ff";
 						break;
+					case Colors.ORANGE:
+						ctx.fillStyle = "#ffa530";
+						break;
 					case Colors.GREEN:
 						ctx.fillStyle = "#30dd30";
 						break;
-					case Colors.YELLOW:
-						ctx.fillStyle = "#aaaa30";
-						break;
-					case Colors.TEAL:
-						ctx.fillStyle = "#90dddd";
-						break;
-					case Colors.PURPLE:
-						ctx.fillStyle = "#bb30bb";
+					case Colors.RED:
+						ctx.fillStyle = "#dd3030";
 						break;
 					default:
 						ctx.fillStyle = "black";
@@ -100,6 +104,10 @@ class Game{
 		}
 	}
 
+	randomTetromino(){
+		const random = Math.floor(Math.random() * 7);
+		return tetrominos[random];
+	}
 }
 
 class Vec2{
@@ -133,9 +141,11 @@ const update = () =>{
 
 	if(game.isCollision(game.currentTetromino)){
 		game.place(previousState);
-		console.log(game.currentTetromino);
-		const squareBlocks = [new Vec2(0, 0), new Vec2(1, 0), new Vec2(0, 1), new Vec2(1, 1)];
-			game.currentTetromino = new Tetromino(squareBlocks, new Vec2(4, 0), Colors.GREEN);
+		const newTetromino = game.randomTetromino();
+		
+		game.currentTetromino = new Tetromino(newTetromino.blocks,
+			new Vec2(newTetromino.position.x, newTetromino.position.y),
+			newTetromino.color);
 	}
 	game.place(game.currentTetromino);
 }
@@ -153,19 +163,35 @@ const step = (timestamp) =>{
 }
 
 // *********************** START ************************
-const squareBlocks = [new Vec2(0, 0), new Vec2(1, 0), new Vec2(0, 1), new Vec2(1, 1)];
-const straightBlocks = [new Vec2(0, 0), new Vec2(1, 0), new Vec2(2, 0), new Vec2(3, 0)];
-//const squareBlocks = [new Vec2(0, 0), new Vec2(1, 0), new Vec2(0, 1), new Vec2(1, 1)];
-//const squareBlocks = [new Vec2(0, 0), new Vec2(1, 0), new Vec2(0, 1), new Vec2(1, 1)];
+const oBlocks = [new Vec2(1, 0), new Vec2(2, 0), new Vec2(1, 1), new Vec2(2, 1)];
+const iBlocks = [new Vec2(0, 0), new Vec2(1, 0), new Vec2(2, 0), new Vec2(3, 0)];
+const tBlocks = [new Vec2(0, 1), new Vec2(1, 1), new Vec2(2, 1), new Vec2(1, 0)];
+const jBlocks = [new Vec2(0, 0), new Vec2(0, 1), new Vec2(1, 1), new Vec2(2, 1)];
+const lBlocks = [new Vec2(0, 1), new Vec2(1, 1), new Vec2(2, 1), new Vec2(2, 0)];
+const sBlocks = [new Vec2(1, 0), new Vec2(2, 0), new Vec2(0, 1), new Vec2(1, 1)];
+const zBlocks = [new Vec2(0, 0), new Vec2(1, 0), new Vec2(1, 1), new Vec2(2, 1)];
 
 const startPos = new Vec2(3, 0);
-//const square = new Tetromino(squareBlocks, startPos, Colors.RED);
-const straight = new Tetromino(straightBlocks, startPos, Colors.RED);
-let previousState = straight;
+const i = new Tetromino(iBlocks, startPos, Colors.TEAL);
+const o = new Tetromino(oBlocks, startPos, Colors.YELLOW);
+const t = new Tetromino(tBlocks, startPos, Colors.PURPLE);
+const j = new Tetromino(jBlocks, startPos, Colors.BLUE);
+const l = new Tetromino(lBlocks, startPos, Colors.ORANGE);
+const s = new Tetromino(sBlocks, startPos, Colors.GREEN);
+const z = new Tetromino(zBlocks, startPos, Colors.RED);
+
+const tetrominos = [i, o, t, j, l, s, z];
+
 const game = new Game();
-game.currentTetromino = straight;
+const randomTetromino = game.randomTetromino();
+
+game.currentTetromino = new Tetromino(randomTetromino.blocks,
+	new Vec2(randomTetromino.position.x, randomTetromino.position.y),
+	randomTetromino.color);
+
+let previousState = game.currentTetromino;
 
 game.renderField();
-game.place(straight);
+game.place(game.currentTetromino);
 game.renderField();
-//requestAnimationFrame(step);
+requestAnimationFrame(step);
