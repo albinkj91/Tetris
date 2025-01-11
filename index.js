@@ -1,4 +1,8 @@
 const ctx = document.querySelector("#canvas").getContext('2d');
+const startButton = document.querySelector("#start");
+const stopButton = document.querySelector("#stop");
+const resetButton = document.querySelector("#reset");
+
 const canvasWidth = ctx.width;
 const canvasHeight = ctx.height;
 const fieldOffsetX = 350;
@@ -16,6 +20,25 @@ const Colors = Object.freeze({
 
 class Game{
 	constructor(){
+		this.oBlocks = [new Vec2(1, 0), new Vec2(2, 0), new Vec2(1, 1), new Vec2(2, 1)];
+		this.iBlocks = [new Vec2(0, 0), new Vec2(1, 0), new Vec2(2, 0), new Vec2(3, 0)];
+		this.tBlocks = [new Vec2(0, 1), new Vec2(1, 1), new Vec2(2, 1), new Vec2(1, 0)];
+		this.jBlocks = [new Vec2(0, 0), new Vec2(0, 1), new Vec2(1, 1), new Vec2(2, 1)];
+		this.lBlocks = [new Vec2(0, 1), new Vec2(1, 1), new Vec2(2, 1), new Vec2(2, 0)];
+		this.sBlocks = [new Vec2(1, 0), new Vec2(2, 0), new Vec2(0, 1), new Vec2(1, 1)];
+		this.zBlocks = [new Vec2(0, 0), new Vec2(1, 0), new Vec2(1, 1), new Vec2(2, 1)];
+
+		this.startPos = new Vec2(3, 0);
+		this.i = new Tetromino(this.iBlocks, this.startPos, Colors.TEAL);
+		this.o = new Tetromino(this.oBlocks, this.startPos, Colors.YELLOW);
+		this.t = new Tetromino(this.tBlocks, this.startPos, Colors.PURPLE);
+		this.j = new Tetromino(this.jBlocks, this.startPos, Colors.BLUE);
+		this.l = new Tetromino(this.lBlocks, this.startPos, Colors.ORANGE);
+		this.s = new Tetromino(this.sBlocks, this.startPos, Colors.GREEN);
+		this.z = new Tetromino(this.zBlocks, this.startPos, Colors.RED);
+
+		this.tetrominos = [this.i, this.o, this.t, this.j, this.l, this.s, this.z];
+
 		this.field = [
 			[0,0,0,0,0,0,0,0,0,0],
 			[0,0,0,0,0,0,0,0,0,0],
@@ -106,7 +129,7 @@ class Game{
 
 	randomTetromino(){
 		const random = Math.floor(Math.random() * 7);
-		return tetrominos[random];
+		return this.tetrominos[random];
 	}
 }
 
@@ -150,6 +173,20 @@ const update = () =>{
 	game.place(game.currentTetromino);
 }
 
+let game;
+let reqId;
+let previousState;
+startButton.addEventListener('click', () =>{
+	if(reqId === undefined)
+		reqId = requestAnimationFrame(step)
+});
+
+stopButton.addEventListener('click', () =>{
+	cancelAnimationFrame(reqId)
+	reqId = undefined;
+});
+resetButton.addEventListener('click', () =>{game = new Game(); init()});
+
 let start = 0;
 const step = (timestamp) =>{
 	const elapsed = timestamp - start;
@@ -159,39 +196,21 @@ const step = (timestamp) =>{
 		game.renderField();
 		start = timestamp;
 	}
-	requestAnimationFrame(step);
-}
+	reqId = requestAnimationFrame(step);
+};
 
-// *********************** START ************************
-const oBlocks = [new Vec2(1, 0), new Vec2(2, 0), new Vec2(1, 1), new Vec2(2, 1)];
-const iBlocks = [new Vec2(0, 0), new Vec2(1, 0), new Vec2(2, 0), new Vec2(3, 0)];
-const tBlocks = [new Vec2(0, 1), new Vec2(1, 1), new Vec2(2, 1), new Vec2(1, 0)];
-const jBlocks = [new Vec2(0, 0), new Vec2(0, 1), new Vec2(1, 1), new Vec2(2, 1)];
-const lBlocks = [new Vec2(0, 1), new Vec2(1, 1), new Vec2(2, 1), new Vec2(2, 0)];
-const sBlocks = [new Vec2(1, 0), new Vec2(2, 0), new Vec2(0, 1), new Vec2(1, 1)];
-const zBlocks = [new Vec2(0, 0), new Vec2(1, 0), new Vec2(1, 1), new Vec2(2, 1)];
+const init = () =>{
+	game = new Game();
+	const randomTetromino = game.randomTetromino();
 
-const startPos = new Vec2(3, 0);
-const i = new Tetromino(iBlocks, startPos, Colors.TEAL);
-const o = new Tetromino(oBlocks, startPos, Colors.YELLOW);
-const t = new Tetromino(tBlocks, startPos, Colors.PURPLE);
-const j = new Tetromino(jBlocks, startPos, Colors.BLUE);
-const l = new Tetromino(lBlocks, startPos, Colors.ORANGE);
-const s = new Tetromino(sBlocks, startPos, Colors.GREEN);
-const z = new Tetromino(zBlocks, startPos, Colors.RED);
+	game.currentTetromino = new Tetromino(randomTetromino.blocks,
+		new Vec2(randomTetromino.position.x, randomTetromino.position.y),
+		randomTetromino.color);
 
-const tetrominos = [i, o, t, j, l, s, z];
+	previousState = game.currentTetromino;
+	game.renderField();
+	game.place(game.currentTetromino);
+	game.renderField();
+};
 
-const game = new Game();
-const randomTetromino = game.randomTetromino();
-
-game.currentTetromino = new Tetromino(randomTetromino.blocks,
-	new Vec2(randomTetromino.position.x, randomTetromino.position.y),
-	randomTetromino.color);
-
-let previousState = game.currentTetromino;
-
-game.renderField();
-game.place(game.currentTetromino);
-game.renderField();
-requestAnimationFrame(step);
+init();
