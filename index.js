@@ -1,7 +1,8 @@
-const ctx = document.querySelector("#canvas").getContext('2d');
-const startButton = document.querySelector("#start");
-const stopButton = document.querySelector("#stop");
-const resetButton = document.querySelector("#reset");
+const body = document.querySelector('body');
+const ctx = document.querySelector('#canvas').getContext('2d');
+const startButton = document.querySelector('#start');
+const stopButton = document.querySelector('#stop');
+const resetButton = document.querySelector('#reset');
 
 const canvasWidth = ctx.width;
 const canvasHeight = ctx.height;
@@ -64,14 +65,27 @@ class Game{
 		this.currentTetromino;
 	}
 
-	isCollision(tetromino){
+	isCollisionDown(tetromino){
 		for(let i = 0; i < tetromino.blocks.length; i++){
 			const x = tetromino.position.x + tetromino.blocks[i].x;
 			const y = tetromino.position.y + tetromino.blocks[i].y;
 
-			if(x == 9 || x < 0 || y == 20 || y < 0){
+			if(y == 20 || y < 0){
 				return true;
 			}
+
+			if(this.field[y][x] !== 0)
+				return true;
+		}
+	}
+
+	isCollisionSide(tetromino){
+		for(let i = 0; i < tetromino.blocks.length; i++){
+			const x = tetromino.position.x + tetromino.blocks[i].x;
+			const y = tetromino.position.y + tetromino.blocks[i].y;
+
+			if(x == 10 || x < 0)
+				return true;
 
 			if(this.field[y][x] !== 0)
 				return true;
@@ -99,28 +113,28 @@ class Game{
 			for(let j = 0; j < this.field[i].length; j++){
 				switch(this.field[i][j]){
 					case Colors.TEAL:
-						ctx.fillStyle = "#90dddd";
+						ctx.fillStyle = '#90dddd';
 						break;
 					case Colors.YELLOW:
-						ctx.fillStyle = "#cccc30";
+						ctx.fillStyle = '#cccc30';
 						break;
 					case Colors.PURPLE:
-						ctx.fillStyle = "#bb30bb";
+						ctx.fillStyle = '#bb30bb';
 						break;
 					case Colors.BLUE:
-						ctx.fillStyle = "#3030ff";
+						ctx.fillStyle = '#3030ff';
 						break;
 					case Colors.ORANGE:
-						ctx.fillStyle = "#ffa530";
+						ctx.fillStyle = '#ffa530';
 						break;
 					case Colors.GREEN:
-						ctx.fillStyle = "#30dd30";
+						ctx.fillStyle = '#30dd30';
 						break;
 					case Colors.RED:
-						ctx.fillStyle = "#dd3030";
+						ctx.fillStyle = '#dd3030';
 						break;
 					default:
-						ctx.fillStyle = "black";
+						ctx.fillStyle = 'black';
 				}
 				ctx.fillRect(fieldOffsetX + j*30, fieldOffsetY + i*30, 28, 28);
 			}
@@ -148,7 +162,7 @@ class Tetromino{
 	}
 
 	rotate(){
-		//TODO:
+		console.log('rotating tetromino');
 	}
 }
 
@@ -162,7 +176,7 @@ const update = () =>{
 	game.currentTetromino.position.y += 1;
 	game.remove(previousState);
 
-	if(game.isCollision(game.currentTetromino)){
+	if(game.isCollisionDown(game.currentTetromino)){
 		game.place(previousState);
 		const newTetromino = game.randomTetromino();
 		
@@ -185,17 +199,51 @@ stopButton.addEventListener('click', () =>{
 	cancelAnimationFrame(reqId)
 	reqId = undefined;
 });
-resetButton.addEventListener('click', () =>{game = new Game(); init()});
+
+resetButton.addEventListener('click', () =>{
+	game = new Game();
+	init()
+});
+
+body.addEventListener('keydown', (e) =>{
+	switch(e.key){
+		case 'ArrowUp':
+			game.currentTetromino.rotate();
+			game.place(game.currentTetromino);
+			break;
+		case 'ArrowLeft':
+			game.remove(game.currentTetromino);
+			game.currentTetromino.position.x -= 1;
+			if(game.isCollisionSide(game.currentTetromino)){
+				game.currentTetromino.position.x += 1;
+			}
+			game.place(game.currentTetromino);
+			break;
+		case 'ArrowRight':
+			game.remove(game.currentTetromino);
+			game.currentTetromino.position.x += 1;
+			if(game.isCollisionSide(game.currentTetromino)){
+				game.currentTetromino.position.x -= 1;
+			}
+			game.place(game.currentTetromino);
+			break;
+		case 'ArrowDown':
+			break;
+		default:
+			console.log('invalid keyboard input');
+			break;
+	}
+});
 
 let start = 0;
 const step = (timestamp) =>{
 	const elapsed = timestamp - start;
-	if(elapsed > 100){
+	if(elapsed > 300){
 		update();
-		ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-		game.renderField();
 		start = timestamp;
 	}
+	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+	game.renderField();
 	reqId = requestAnimationFrame(step);
 };
 
