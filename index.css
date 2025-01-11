@@ -9,3 +9,7 @@ body{
 	border: whitesmoke 2px solid;
 	border-radius: 10px;
 }
+
+#buttons{
+	margin: 10px;
+}

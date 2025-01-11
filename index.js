@@ -228,12 +228,23 @@ body.addEventListener('keydown', (e) =>{
 			game.place(game.currentTetromino);
 			break;
 		case 'ArrowDown':
+			if(resetKey)
+				return;
+			game.remove(game.currentTetromino);
+			game.currentTetromino.position.y += 1;
+			if(game.isCollisionDown(game.currentTetromino)){
+				game.currentTetromino.position.y -= 1;
+				resetKey = true;
+			}
+			game.place(game.currentTetromino);
 			break;
 		default:
 			console.log('invalid keyboard input');
 			break;
 	}
 });
+
+body.addEventListener('keyup', () => {resetKey = false});
 
 let start = 0;
 const step = (timestamp) =>{
