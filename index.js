@@ -64,14 +64,15 @@ class Game{
 		this.sBlocks = [new Vec2(0, 0), new Vec2(1, 0), new Vec2(-1, 1), new Vec2(0, 1)];
 		this.zBlocks = [new Vec2(-1, 0), new Vec2(0, 0), new Vec2(0, 1), new Vec2(1, 1)];
 
-		this.startPos = new Vec2(4, 1);
-		this.o = new Tetromino(this.oBlocks, this.startPos, Colors.YELLOW);
-		this.i = new Tetromino(this.iBlocks, this.startPos, Colors.TEAL);
-		this.t = new Tetromino(this.tBlocks, this.startPos, Colors.PURPLE);
-		this.j = new Tetromino(this.jBlocks, this.startPos, Colors.BLUE);
-		this.l = new Tetromino(this.lBlocks, this.startPos, Colors.ORANGE);
-		this.s = new Tetromino(this.sBlocks, this.startPos, Colors.GREEN);
-		this.z = new Tetromino(this.zBlocks, this.startPos, Colors.RED);
+		this.startPos1 = new Vec2(4, 0);
+		this.startPos2 = new Vec2(4, 1);
+		this.o = new Tetromino(this.oBlocks, this.startPos1, Colors.YELLOW);
+		this.i = new Tetromino(this.iBlocks, this.startPos1, Colors.TEAL);
+		this.t = new Tetromino(this.tBlocks, this.startPos2, Colors.PURPLE);
+		this.j = new Tetromino(this.jBlocks, this.startPos2, Colors.BLUE);
+		this.l = new Tetromino(this.lBlocks, this.startPos2, Colors.ORANGE);
+		this.s = new Tetromino(this.sBlocks, this.startPos1, Colors.GREEN);
+		this.z = new Tetromino(this.zBlocks, this.startPos1, Colors.RED);
 
 		this.tetrominos = [this.i, this.o, this.t, this.j, this.l, this.s, this.z];
 
@@ -181,6 +182,38 @@ class Game{
 		const temp = this.tetrominos[random];
 		return new Tetromino(structuredClone(temp.blocks), temp.position, temp.color);
 	}
+
+	checkRows(){
+		const rowsToClear = [];
+		for(let i = this.field.length - 1; i > 0; i--){
+			let fullRow = true;
+			for(let j = 0; j < this.field[i].length; j++){
+				if(this.field[i][j] == 0){
+					fullRow = false;
+					break;
+				}
+			}
+			if(fullRow)
+				rowsToClear.push(i);
+		}
+		console.log(rowsToClear);
+		return rowsToClear;
+	}
+
+	clear(rows){
+		for(const i of rows){
+			for(let j = 0; j < this.field[i].length; j++){
+				this.field[i][j] = 0;
+				let k = i;
+				while(k > 0){
+					this.field[k][j] = this.field[k-1][j];
+					this.field[k-1][j] = 0;
+					k--;
+				}
+			}
+		}
+		rows = [];
+	}
 }
 
 const update = () =>{
@@ -195,6 +228,11 @@ const update = () =>{
 
 	if(game.isCollisionDown(game.currentTetromino)){
 		game.place(previousState);
+		let rows = game.checkRows();
+		while(rows.length > 0){
+			game.clear(rows);
+			rows = game.checkRows();
+		}
 		const newTetromino = game.randomTetromino();
 		
 		game.currentTetromino = new Tetromino(structuredClone(newTetromino.blocks),

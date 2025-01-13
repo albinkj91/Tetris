@@ -1,15 +1,17 @@
 body{
-	background-color: #203050;
+	background-color: #000000;
 }
 
 #game{
 	margin: auto;
 	width: 1000px;
 	background-color: #202040;
-	border: whitesmoke 2px solid;
-	border-radius: 10px;
 }
 
-#buttons{
-	margin: 10px;
+#buttons button{
+	margin-left: 10px;
+	margin-bottom: 10px;
+	padding: 5px;
+	border: none;
+	background-color: dddddd;
 }
