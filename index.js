@@ -19,6 +19,10 @@ const Colors = Object.freeze({
 	RED: 7
 });
 
+const rotate = () =>{
+	console.log('rotating tetromino');
+}
+
 class Game{
 	constructor(){
 		this.oBlocks = [new Vec2(1, 0), new Vec2(2, 0), new Vec2(1, 1), new Vec2(2, 1)];
@@ -30,13 +34,13 @@ class Game{
 		this.zBlocks = [new Vec2(0, 0), new Vec2(1, 0), new Vec2(1, 1), new Vec2(2, 1)];
 
 		this.startPos = new Vec2(3, 0);
-		this.i = new Tetromino(this.iBlocks, this.startPos, Colors.TEAL);
-		this.o = new Tetromino(this.oBlocks, this.startPos, Colors.YELLOW);
-		this.t = new Tetromino(this.tBlocks, this.startPos, Colors.PURPLE);
-		this.j = new Tetromino(this.jBlocks, this.startPos, Colors.BLUE);
-		this.l = new Tetromino(this.lBlocks, this.startPos, Colors.ORANGE);
-		this.s = new Tetromino(this.sBlocks, this.startPos, Colors.GREEN);
-		this.z = new Tetromino(this.zBlocks, this.startPos, Colors.RED);
+		this.i = new Tetromino(this.iBlocks, this.startPos, Colors.TEAL, rotate);
+		this.o = new Tetromino(this.oBlocks, this.startPos, Colors.YELLOW, rotate);
+		this.t = new Tetromino(this.tBlocks, this.startPos, Colors.PURPLE, rotate);
+		this.j = new Tetromino(this.jBlocks, this.startPos, Colors.BLUE, rotate);
+		this.l = new Tetromino(this.lBlocks, this.startPos, Colors.ORANGE, rotate);
+		this.s = new Tetromino(this.sBlocks, this.startPos, Colors.GREEN, rotate);
+		this.z = new Tetromino(this.zBlocks, this.startPos, Colors.RED, rotate);
 
 		this.tetrominos = [this.i, this.o, this.t, this.j, this.l, this.s, this.z];
 
@@ -155,14 +159,11 @@ class Vec2{
 }
 
 class Tetromino{
-	constructor(blocks, position, color) {
+	constructor(blocks, position, color, rotate) {
 		this.blocks = blocks;
 		this.position = position;
 		this.color = color;
-	}
-
-	rotate(){
-		console.log('rotating tetromino');
+		this.rotate = rotate;
 	}
 }
 
@@ -171,7 +172,7 @@ const update = () =>{
 		new Vec2(
 			game.currentTetromino.position.x,
 			game.currentTetromino.position.y),
-		game.currentTetromino.color);
+		game.currentTetromino.color, game.currentTetromino.rotate);
 
 	game.currentTetromino.position.y += 1;
 	game.remove(previousState);
@@ -190,6 +191,8 @@ const update = () =>{
 let game;
 let reqId;
 let previousState;
+let resetKey;
+
 startButton.addEventListener('click', () =>{
 	if(reqId === undefined)
 		reqId = requestAnimationFrame(step)
@@ -264,7 +267,7 @@ const init = () =>{
 
 	game.currentTetromino = new Tetromino(randomTetromino.blocks,
 		new Vec2(randomTetromino.position.x, randomTetromino.position.y),
-		randomTetromino.color);
+		randomTetromino.color, randomTetromino.rotate);
 
 	previousState = game.currentTetromino;
 	game.renderField();
