@@ -39,16 +39,16 @@ class Mat2{
 	}
 }
 
-const rotateMatrix = new Mat2(new Vec2(Math.cos(phi), -Math.sin(phi)), new Vec2(Math.sin(phi), Math.cos(phi)));
 
 class Tetromino{
-	constructor(blocks, position, color) {
+	constructor(blocks, position, color){
 		this.blocks = blocks;
 		this.position = position;
 		this.color = color;
 	}
 
-	rotate(){
+	rotate(phi){
+		const rotateMatrix = new Mat2(new Vec2(Math.cos(phi), -Math.sin(phi)), new Vec2(Math.sin(phi), Math.cos(phi)));
 		for(let i = 0; i < this.blocks.length; i++)
 			this.blocks[i] = rotateMatrix.mult(this.blocks[i]);
 	}
@@ -227,7 +227,10 @@ body.addEventListener('keydown', (e) =>{
 	switch(e.key){
 		case 'ArrowUp':
 			game.remove(game.currentTetromino);
-			game.currentTetromino.rotate();
+			game.currentTetromino.rotate(phi);
+			if(game.isCollisionSide(game.currentTetromino)){
+				game.currentTetromino.rotate(-phi);
+			}
 			game.place(game.currentTetromino);
 			break;
 		case 'ArrowLeft':
