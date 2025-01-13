@@ -178,12 +178,13 @@ class Game{
 
 	randomTetromino(){
 		const random = Math.floor(Math.random() * 7);
-		return this.tetrominos[random];
+		const temp = this.tetrominos[random];
+		return new Tetromino(structuredClone(temp.blocks), temp.position, temp.color);
 	}
 }
 
 const update = () =>{
-	previousState = new Tetromino(game.currentTetromino.blocks,
+	previousState = new Tetromino(structuredClone(game.currentTetromino.blocks),
 		new Vec2(
 			game.currentTetromino.position.x,
 			game.currentTetromino.position.y),
@@ -196,7 +197,7 @@ const update = () =>{
 		game.place(previousState);
 		const newTetromino = game.randomTetromino();
 		
-		game.currentTetromino = new Tetromino(newTetromino.blocks,
+		game.currentTetromino = new Tetromino(structuredClone(newTetromino.blocks),
 			new Vec2(newTetromino.position.x, newTetromino.position.y),
 			newTetromino.color);
 	}
@@ -284,7 +285,7 @@ const init = () =>{
 	game = new Game();
 	const randomTetromino = game.randomTetromino();
 
-	game.currentTetromino = new Tetromino(randomTetromino.blocks,
+	game.currentTetromino = new Tetromino(structuredClone(randomTetromino.blocks),
 		new Vec2(randomTetromino.position.x, randomTetromino.position.y),
 		randomTetromino.color);
 
