@@ -8,15 +8,19 @@
 	<link rel="stylesheet" href="index.css">
 </head>
 <body>
+	<img src="tetris.gif" alt="gif showing the word tetris with tetrominoes">
 	<div id="game">
-		<label>Points:</label>
-		<label id="points">0</label>
-		<canvas id="canvas" width="1000" height="700"></canvas>
+		<div>
+			<label>Points:</label>
+			<label id="points">0</label>
+		</div>
+		<canvas id="canvas" width="300" height="600"></canvas>
 		<div id="buttons">
 			<button id="start">Start</button>
-			<button id="stop">Stop</button>
+			<button id="stop">Pause</button>
 			<button id="reset">Reset</button>
 		</div>
+		<audio id="audio" src="tetris-theme.mp3"></audio>
 		<script src="index.js"></script>
 	</div>
 </body>

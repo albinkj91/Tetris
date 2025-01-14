@@ -4,11 +4,10 @@ const points = document.querySelector('#points');
 const startButton = document.querySelector('#start');
 const stopButton = document.querySelector('#stop');
 const resetButton = document.querySelector('#reset');
+const audio = document.querySelector('#audio');
 
 const canvasWidth = ctx.width;
 const canvasHeight = ctx.height;
-const fieldOffsetX = 350;
-const fieldOffsetY = 100;
 const phi = Math.PI / 2.0;
 
 const Colors = Object.freeze({
@@ -151,30 +150,30 @@ class Game{
 			for(let j = 0; j < this.field[i].length; j++){
 				switch(this.field[i][j]){
 					case Colors.TEAL:
-						ctx.fillStyle = '#90dddd';
+						ctx.fillStyle = '#20dfdf';
 						break;
 					case Colors.YELLOW:
-						ctx.fillStyle = '#cccc30';
+						ctx.fillStyle = '#dfdf20';
 						break;
 					case Colors.PURPLE:
-						ctx.fillStyle = '#bb30bb';
+						ctx.fillStyle = '#9f20df';
 						break;
 					case Colors.BLUE:
-						ctx.fillStyle = '#3030ff';
+						ctx.fillStyle = '#2020df';
 						break;
 					case Colors.ORANGE:
-						ctx.fillStyle = '#ffa530';
+						ctx.fillStyle = '#df9f20';
 						break;
 					case Colors.GREEN:
-						ctx.fillStyle = '#30dd30';
+						ctx.fillStyle = '#20df20';
 						break;
 					case Colors.RED:
-						ctx.fillStyle = '#dd3030';
+						ctx.fillStyle = '#df2020';
 						break;
 					default:
 						ctx.fillStyle = 'black';
 				}
-				ctx.fillRect(fieldOffsetX + j*30, fieldOffsetY + i*30, 28, 28);
+				ctx.fillRect(j*30, i*30, 29, 29);
 			}
 		}
 	}
@@ -272,6 +271,7 @@ let resetKey;
 
 startButton.addEventListener('click', () =>{
 	body.addEventListener('keydown', keyEventHandler);
+	audio.play();
 	if(reqId === undefined)
 		reqId = requestAnimationFrame(step)
 });
@@ -279,6 +279,7 @@ startButton.addEventListener('click', () =>{
 stopButton.addEventListener('click', () =>{
 	cancelAnimationFrame(reqId)
 	reqId = undefined;
+	audio.pause();
 });
 
 resetButton.addEventListener('click', () =>init());
