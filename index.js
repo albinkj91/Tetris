@@ -1,5 +1,6 @@
 const body = document.querySelector('body');
 const ctx = document.querySelector('#canvas').getContext('2d');
+const points = document.querySelector('#points');
 const startButton = document.querySelector('#start');
 const stopButton = document.querySelector('#stop');
 const resetButton = document.querySelector('#reset');
@@ -56,6 +57,7 @@ class Tetromino{
 
 class Game{
 	constructor(){
+		this.points = 0;
 		this.oBlocks = [new Vec2(0, 0), new Vec2(1, 0), new Vec2(0, 1), new Vec2(1, 1)];
 		this.iBlocks = [new Vec2(-1, 0), new Vec2(0, 0), new Vec2(1, 0), new Vec2(2, 0)];
 		this.tBlocks = [new Vec2(-1, 0), new Vec2(0, 0), new Vec2(1, 0), new Vec2(0, -1)];
@@ -106,7 +108,7 @@ class Game{
 			const x = tetromino.position.x + tetromino.blocks[i].x;
 			const y = tetromino.position.y + tetromino.blocks[i].y;
 
-			if(y == 20 || y < 0){
+			if(y >= 20 || y < 0){
 				return true;
 			}
 
@@ -184,7 +186,6 @@ class Game{
 	}
 
 	checkRows(){
-		const rowsToClear = [];
 		for(let i = this.field.length - 1; i > 0; i--){
 			let fullRow = true;
 			for(let j = 0; j < this.field[i].length; j++){
@@ -194,25 +195,21 @@ class Game{
 				}
 			}
 			if(fullRow)
-				rowsToClear.push(i);
+				return i;
 		}
-		console.log(rowsToClear);
-		return rowsToClear;
+		return 0;
 	}
 
-	clear(rows){
-		for(const i of rows){
-			for(let j = 0; j < this.field[i].length; j++){
-				this.field[i][j] = 0;
-				let k = i;
-				while(k > 0){
-					this.field[k][j] = this.field[k-1][j];
-					this.field[k-1][j] = 0;
-					k--;
-				}
+	clear(row){
+		for(let j = 0; j < this.field[row].length; j++){
+			this.field[row][j] = 0;
+			let k = row;
+			while(k > 0){
+				this.field[k][j] = this.field[k-1][j];
+				this.field[k-1][j] = 0;
+				k--;
 			}
 		}
-		rows = [];
 	}
 }
 
@@ -226,18 +223,44 @@ const update = () =>{
 	game.currentTetromino.position.y += 1;
 	game.remove(previousState);
 
+	let rowCount = 0;
 	if(game.isCollisionDown(game.currentTetromino)){
 		game.place(previousState);
-		let rows = game.checkRows();
-		while(rows.length > 0){
-			game.clear(rows);
-			rows = game.checkRows();
+		let row = game.checkRows();
+		while(row !== 0){
+			rowCount++;
+			if(delta > 50){
+				delta -= 25;
+			}
+			game.clear(row);
+			row = game.checkRows();
 		}
+
+		switch(rowCount){
+			case 1:
+				game.points += 100;
+				break;
+			case 2:
+				game.points += 200;
+				break;
+			case 3:
+				game.points += 500;
+				break;
+			case 4:
+				game.points += 800;
+				break;
+		}
+		points.innerHTML = game.points;
 		const newTetromino = game.randomTetromino();
 		
 		game.currentTetromino = new Tetromino(structuredClone(newTetromino.blocks),
 			new Vec2(newTetromino.position.x, newTetromino.position.y),
 			newTetromino.color);
+	}
+	if(game.isCollisionDown(game.currentTetromino) || game.isCollisionSide(game.currentTetromino)){
+		points.innerHTML = "GAME OVER";
+		cancelAnimationFrame(reqId);
+		reqId = undefined;
 	}
 	game.place(game.currentTetromino);
 }
@@ -248,6 +271,7 @@ let previousState;
 let resetKey;
 
 startButton.addEventListener('click', () =>{
+	body.addEventListener('keydown', keyEventHandler);
 	if(reqId === undefined)
 		reqId = requestAnimationFrame(step)
 });
@@ -257,17 +281,18 @@ stopButton.addEventListener('click', () =>{
 	reqId = undefined;
 });
 
-resetButton.addEventListener('click', () =>{
-	game = new Game();
-	init()
-});
+resetButton.addEventListener('click', () =>init());
 
-body.addEventListener('keydown', (e) =>{
+let keyDown = false;
+const keyEventHandler = (e) =>{
+	if(keyDown)
+		return;
 	switch(e.key){
 		case 'ArrowUp':
+			keyDown = true;
 			game.remove(game.currentTetromino);
 			game.currentTetromino.rotate(phi);
-			if(game.isCollisionSide(game.currentTetromino)){
+			if(game.isCollisionDown(game.currentTetromino) || game.isCollisionSide(game.currentTetromino)){
 				game.currentTetromino.rotate(-phi);
 			}
 			game.place(game.currentTetromino);
@@ -303,20 +328,25 @@ body.addEventListener('keydown', (e) =>{
 			console.log('invalid keyboard input');
 			break;
 	}
+};
+
+body.addEventListener('keyup', () => {
+	resetKey = false;
+	keyDown = false;
 });
 
-body.addEventListener('keyup', () => {resetKey = false});
-
 let start = 0;
+let delta = 500;
 const step = (timestamp) =>{
 	const elapsed = timestamp - start;
-	if(elapsed > 300){
+	if(elapsed > delta){
 		update();
 		start = timestamp;
 	}
 	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 	game.renderField();
-	reqId = requestAnimationFrame(step);
+	if(reqId !== undefined)
+		reqId = requestAnimationFrame(step);
 };
 
 const init = () =>{
@@ -328,6 +358,7 @@ const init = () =>{
 		randomTetromino.color);
 
 	previousState = game.currentTetromino;
+	points.innerHTML = game.points;
 	game.renderField();
 	game.place(game.currentTetromino);
 	game.renderField();

@@ -15,3 +15,7 @@ body{
 	border: none;
 	background-color: dddddd;
 }
+
+label{
+	color: aliceblue;
+}
