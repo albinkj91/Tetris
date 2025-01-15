@@ -6,13 +6,16 @@ body{
 	align-items: center;
 }
 
-#left{
-	width: 150px;
-}
-
 #container{
 	display: flex;
 	justify-content: center;
+}
+
+#upcoming{
+	height: 150px;
+	margin-top: 30px;
+	border: #00000050 outset 5px;
+	background-color: #505050;
 }
 
 #game{
@@ -25,12 +28,12 @@ body{
 }
 
 #status{
+	width: 180px;
 	margin-top: 50px;
 	font-size: 20px;
 }
 
 #score-container{
-	width: 150px;
 	display: flex;
 	border: #70dfdf outset  5px;
 	background-color: #70dfdf;

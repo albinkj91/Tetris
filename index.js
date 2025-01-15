@@ -1,6 +1,7 @@
 const body = document.querySelector('body');
 const canvas = document.querySelector('#canvas');
 const ctx = canvas.getContext('2d');
+const upcomingTetrominoCtx = document.querySelector('#upcoming-tetromino').getContext('2d');
 const score = document.querySelector('#score');
 const playButton = document.querySelector('#play');
 const restartButton = document.querySelector('#restart');
@@ -11,7 +12,12 @@ const playImg = document.querySelector('#play-img');
 const canvasWidth = ctx.width;
 const canvasHeight = ctx.height;
 const phi = Math.PI / 2.0;
+
 let delta = 500;
+let game;
+let reqId;
+let previousState;
+let resetKey;
 
 const GameState = Object.freeze({
 	START: 1,
@@ -112,6 +118,7 @@ class Game{
 			[0,0,0,0,0,0,0,0,0,0]
 		];
 		this.currentTetromino;
+		this.upcomingTetromino;
 	}
 
 	isCollisionDown(tetromino){
@@ -157,36 +164,40 @@ class Game{
 		}
 	}
 
+	drawBlock(color, x, y, ctx){
+		switch(color){
+			case Colors.TEAL:
+				ctx.fillStyle = '#20dfdfaa';
+				break;
+			case Colors.YELLOW:
+				ctx.fillStyle = '#dfdf20aa';
+				break;
+			case Colors.PURPLE:
+				ctx.fillStyle = '#9f20dfaa';
+				break;
+			case Colors.BLUE:
+				ctx.fillStyle = '#2020dfaa';
+				break;
+			case Colors.ORANGE:
+				ctx.fillStyle = '#df9f20aa';
+				break;
+			case Colors.GREEN:
+				ctx.fillStyle = '#20df20aa';
+				break;
+			case Colors.RED:
+				ctx.fillStyle = '#df2020aa';
+				break;
+			default:
+				ctx.fillStyle = '#000000aa';
+		}
+		ctx.drawImage(this.img, x*30, y*30);
+		ctx.fillRect(x*30, y*30, 29, 29);
+	}
+
 	renderField(){
 		for(let i = 0; i < this.field.length; i++){
 			for(let j = 0; j < this.field[i].length; j++){
-				switch(this.field[i][j]){
-					case Colors.TEAL:
-						ctx.fillStyle = '#20dfdfaa';
-						break;
-					case Colors.YELLOW:
-						ctx.fillStyle = '#dfdf20aa';
-						break;
-					case Colors.PURPLE:
-						ctx.fillStyle = '#9f20dfaa';
-						break;
-					case Colors.BLUE:
-						ctx.fillStyle = '#2020dfaa';
-						break;
-					case Colors.ORANGE:
-						ctx.fillStyle = '#df9f20aa';
-						break;
-					case Colors.GREEN:
-						ctx.fillStyle = '#20df20aa';
-						break;
-					case Colors.RED:
-						ctx.fillStyle = '#df2020aa';
-						break;
-					default:
-						ctx.fillStyle = '#000000aa';
-				}
-				ctx.drawImage(this.img, j*30, i*30);
-				ctx.fillRect(j*30, i*30, 29, 29);
+				this.drawBlock(this.field[i][j], j, i, ctx);
 			}
 		}
 	}
@@ -221,6 +232,16 @@ class Game{
 				this.field[k-1][j] = 0;
 				k--;
 			}
+		}
+	}
+
+	setUpcomingTetromino(){
+		this.upcomingTetromino = this.randomTetromino();
+		upcomingTetrominoCtx.clearRect(0, 0, 150, 200);
+		for(let i = 0; i < this.upcomingTetromino.blocks.length; i++){
+			const x = this.upcomingTetromino.blocks[i].x + 2;
+			const y = this.upcomingTetromino.blocks[i].y + 2;
+			this.drawBlock(this.upcomingTetromino.color, x, y, upcomingTetrominoCtx);
 		}
 	}
 }
@@ -263,11 +284,11 @@ const update = () =>{
 				break;
 		}
 		score.innerHTML = game.score;
-		const newTetromino = game.randomTetromino();
 		
-		game.currentTetromino = new Tetromino(structuredClone(newTetromino.blocks),
-			new Vec2(newTetromino.position.x, newTetromino.position.y),
-			newTetromino.color);
+		game.currentTetromino = new Tetromino(structuredClone(game.upcomingTetromino.blocks),
+			new Vec2(game.upcomingTetromino.position.x, game.upcomingTetromino.position.y),
+			game.upcomingTetromino.color);
+		game.setUpcomingTetromino();
 	}
 	if(game.isCollisionDown(game.currentTetromino) || game.isCollisionSide(game.currentTetromino)){
 		game.state = GameState.GAME_OVER;
@@ -281,11 +302,6 @@ const update = () =>{
 	}
 	game.place(game.currentTetromino);
 }
-
-let game;
-let reqId;
-let previousState;
-let resetKey;
 
 playButton.addEventListener('click', async () =>{
 	body.addEventListener('keydown', keyEventHandler);
@@ -407,11 +423,13 @@ const init = async() =>{
 		new Vec2(randomTetromino.position.x, randomTetromino.position.y),
 		randomTetromino.color);
 
+
 	previousState = game.currentTetromino;
 	score.innerHTML = game.score;
 	if(game.img === undefined){
 		game.img = await loadImage('assets/block2.png');
 	}
+	game.setUpcomingTetromino();
 	game.renderField();
 	game.place(game.currentTetromino);
 	game.renderField();
