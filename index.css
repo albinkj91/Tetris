@@ -1,9 +1,8 @@
 body{
 	background-color: #202020;
 	display: flex;
+	flex-direction: row;
 	justify-content: center;
-	align-items: center;
-	flex-direction: column;
 }
 
 #game{
@@ -11,6 +10,20 @@ body{
 	flex-direction: column;
 	align-items: center;
 	width: 300px;
+	margin-right: 50px;
+	margin-left: 50px;
+}
+
+#status{
+	margin-top: 50px;
+	font-size: 20px;
+}
+
+#score-container{
+	display: flex;
+	border: #70dfdf outset  5px;
+	background-color: #70dfdf;
+	color: #202020;
 }
 
 #canvas{
@@ -36,45 +49,62 @@ body{
 	appearance: none;
 	width: 25px; /* Set a specific slider handle width */
 	height: 25px; /* Slider handle height */
-	background: #04AA6D; /* Green background */
+	background-image: url(assets/block.png);
 	cursor: pointer; /* Cursor on hover */
 }
   
 .slider::-moz-range-thumb {
 	width: 25px;
 	height: 25px;
-	background-image: url(block.png);
+	background-image: url(assets/block.png);
 	cursor: pointer;
 	border-color: #202020;
 	border-radius: 0px;
 }
 
 #buttons button{
+	display: flex;
+	justify-content: center;
 	width: 100px;
 	margin-left: 20px;
-	margin-bottom: 10px;
+	margin-bottom: 20px;
 	margin-top: 5px;
-	padding: 10px;
 	border: none;
-	background-color: #bbbbbb;
 	color: black;
 	font-size: 16px;
 	font-family: Arial, Helvetica, sans-serif;
 	border-radius: 4px;
-}
-
-#buttons button:hover{
-	background-color: #8080bb;
-	color: black;
+	cursor: pointer;
 }
 
 label{
-	color: #ffffff;
 	margin: 5px;
 }
 
 img{
-	width: 300px;
-	border: black solid 2px;
-	margin: 10px;
+	width: 50px;
+}
+
+#play{
+	background-color: #20df20;
+}
+
+#play:hover{
+	background-color: #208020;
+}
+
+#pause{
+	background-color: #df9f20;
+}
+
+#pause:hover{
+	background-color: #af6f20;
+}
+
+#restart{
+	background-color: #70dfdf;
+}
+
+#restart:hover{
+	background-color: #409f9f;
 }

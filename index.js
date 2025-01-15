@@ -2,11 +2,11 @@ const body = document.querySelector('body');
 const canvas = document.querySelector('#canvas');
 const ctx = canvas.getContext('2d');
 const score = document.querySelector('#score');
-const startButton = document.querySelector('#start');
-const stopButton = document.querySelector('#stop');
-const resetButton = document.querySelector('#reset');
+const playButton = document.querySelector('#play');
+const restartButton = document.querySelector('#restart');
 const audio = document.querySelector('#audio');
-const volume = document.querySelector('#volumeRange');
+const volume = document.querySelector('#volume-range');
+const playImg = document.querySelector('#play-img');
 
 const canvasWidth = ctx.width;
 const canvasHeight = ctx.height;
@@ -262,7 +262,6 @@ const update = () =>{
 			newTetromino.color);
 	}
 	if(game.isCollisionDown(game.currentTetromino) || game.isCollisionSide(game.currentTetromino)){
-		score.innerHTML = "GAME OVER";
 		cancelAnimationFrame(reqId);
 		reqId = undefined;
 		ctx.fillStyle = '#00000050';
@@ -276,20 +275,23 @@ let reqId;
 let previousState;
 let resetKey;
 
-startButton.addEventListener('click', () =>{
+playButton.addEventListener('click', () =>{
 	body.addEventListener('keydown', keyEventHandler);
-	audio.play();
-	if(reqId === undefined)
+	if(reqId === undefined){
+		playButton.id = 'pause';
+		audio.play();
 		reqId = requestAnimationFrame(step)
+		playImg.src = 'assets/pause.png';
+	}else{
+		playButton.id = 'play';
+		cancelAnimationFrame(reqId)
+		reqId = undefined;
+		audio.pause();
+		playImg.src = 'assets/play.png';
+	}
 });
 
-stopButton.addEventListener('click', () =>{
-	cancelAnimationFrame(reqId)
-	reqId = undefined;
-	audio.pause();
-});
-
-resetButton.addEventListener('click', () => init());
+restartButton.addEventListener('click', () => init());
 
 let keyDown = false;
 const keyEventHandler = (e) =>{
@@ -391,7 +393,9 @@ const init = async() =>{
 
 	previousState = game.currentTetromino;
 	score.innerHTML = game.score;
-	game.img = await loadImage('block2.png');
+	if(game.img === undefined){
+		game.img = await loadImage('assets/block2.png');
+	}
 	game.renderField();
 	game.place(game.currentTetromino);
 	game.renderField();
