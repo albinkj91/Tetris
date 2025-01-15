@@ -8,22 +8,24 @@
 	<link rel="stylesheet" href="index.css">
 </head>
 <body>
-	<div></div>
-	<div id="game">
-		<canvas id="canvas" width="300" height="600"></canvas>
-		<div id="buttons">
-			<button id="play"><img id="play-img" src="assets/play.png" alt="play button"></button>
-			<button id="restart"><img src="assets/restart.png" alt="restart button"></button>
+	<div id="container">
+		<div id="left"></div>
+		<div id="game">
+			<canvas id="canvas" width="300" height="600"></canvas>
+			<div id="buttons">
+				<button id="play"><img id="play-img" src="assets/play.png" alt="play button"></button>
+				<button id="restart"><img src="assets/restart.png" alt="restart button"></button>
+			</div>
+			<div id="volume">
+				<input type="range" min="0.0" max="1.0" value="1.0" step="0.01" class="slider" id="volume-range">
+			</div>
+			<audio id="audio" src="assets/tetris-theme.mp3"></audio>
 		</div>
-		<div id="volume">
-			<input type="range" min="0.0" max="1.0" value="1.0" step="0.01" class="slider" id="volume-range">
-		</div>
-		<audio id="audio" src="assets/tetris-theme.mp3"></audio>
-	</div>
-	<div id="status">
-		<div id="score-container">
-			<label>Score:</label>
-			<label id="score">0</label>
+		<div id="status">
+			<div id="score-container">
+				<label>Score:</label>
+				<label id="score">0</label>
+			</div>
 		</div>
 	</div>
 	<script src="index.js"></script>

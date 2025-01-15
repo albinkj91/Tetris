@@ -13,6 +13,13 @@ const canvasHeight = ctx.height;
 const phi = Math.PI / 2.0;
 let delta = 500;
 
+const GameState = Object.freeze({
+	START: 1,
+	RUNNING: 2,
+	PAUSED: 3,
+	GAME_OVER: 4
+});
+
 const Colors = Object.freeze({
 	TEAL: 1,
 	YELLOW: 2,
@@ -59,6 +66,7 @@ class Tetromino{
 
 class Game{
 	constructor(){
+		this.state = GameState.START;
 		this.score = 0;
 		this.oBlocks = [new Vec2(0, 0), new Vec2(1, 0), new Vec2(0, 1), new Vec2(1, 1)];
 		this.iBlocks = [new Vec2(-1, 0), new Vec2(0, 0), new Vec2(1, 0), new Vec2(2, 0)];
@@ -262,10 +270,14 @@ const update = () =>{
 			newTetromino.color);
 	}
 	if(game.isCollisionDown(game.currentTetromino) || game.isCollisionSide(game.currentTetromino)){
+		game.state = GameState.GAME_OVER;
 		cancelAnimationFrame(reqId);
 		reqId = undefined;
-		ctx.fillStyle = '#00000050';
+		ctx.fillStyle = '#00000090';
 		ctx.fillRect(0, 0, 300, 600);
+		playButton.id = 'play';
+		playImg.src = 'assets/play.png';
+		audio.pause();
 	}
 	game.place(game.currentTetromino);
 }
@@ -275,9 +287,13 @@ let reqId;
 let previousState;
 let resetKey;
 
-playButton.addEventListener('click', () =>{
+playButton.addEventListener('click', async () =>{
 	body.addEventListener('keydown', keyEventHandler);
 	if(reqId === undefined){
+		if(game.state === GameState.GAME_OVER){
+			await init();
+			game.state = GameState.RUNNING;
+		}
 		playButton.id = 'pause';
 		audio.play();
 		reqId = requestAnimationFrame(step)
