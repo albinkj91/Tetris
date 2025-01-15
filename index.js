@@ -1,14 +1,17 @@
 const body = document.querySelector('body');
-const ctx = document.querySelector('#canvas').getContext('2d');
-const points = document.querySelector('#points');
+const canvas = document.querySelector('#canvas');
+const ctx = canvas.getContext('2d');
+const score = document.querySelector('#score');
 const startButton = document.querySelector('#start');
 const stopButton = document.querySelector('#stop');
 const resetButton = document.querySelector('#reset');
 const audio = document.querySelector('#audio');
+const volume = document.querySelector('#volumeRange');
 
 const canvasWidth = ctx.width;
 const canvasHeight = ctx.height;
 const phi = Math.PI / 2.0;
+let delta = 500;
 
 const Colors = Object.freeze({
 	TEAL: 1,
@@ -56,7 +59,7 @@ class Tetromino{
 
 class Game{
 	constructor(){
-		this.points = 0;
+		this.score = 0;
 		this.oBlocks = [new Vec2(0, 0), new Vec2(1, 0), new Vec2(0, 1), new Vec2(1, 1)];
 		this.iBlocks = [new Vec2(-1, 0), new Vec2(0, 0), new Vec2(1, 0), new Vec2(2, 0)];
 		this.tBlocks = [new Vec2(-1, 0), new Vec2(0, 0), new Vec2(1, 0), new Vec2(0, -1)];
@@ -76,6 +79,7 @@ class Game{
 		this.z = new Tetromino(this.zBlocks, this.startPos1, Colors.RED);
 
 		this.tetrominos = [this.i, this.o, this.t, this.j, this.l, this.s, this.z];
+		this.img;
 
 		this.field = [
 			[0,0,0,0,0,0,0,0,0,0],
@@ -121,7 +125,7 @@ class Game{
 			const x = tetromino.position.x + tetromino.blocks[i].x;
 			const y = tetromino.position.y + tetromino.blocks[i].y;
 
-			if(x == 10 || x < 0)
+			if(x === 10 || x < 0)
 				return true;
 
 			if(this.field[y][x] !== 0)
@@ -150,29 +154,30 @@ class Game{
 			for(let j = 0; j < this.field[i].length; j++){
 				switch(this.field[i][j]){
 					case Colors.TEAL:
-						ctx.fillStyle = '#20dfdf';
+						ctx.fillStyle = '#20dfdfaa';
 						break;
 					case Colors.YELLOW:
-						ctx.fillStyle = '#dfdf20';
+						ctx.fillStyle = '#dfdf20aa';
 						break;
 					case Colors.PURPLE:
-						ctx.fillStyle = '#9f20df';
+						ctx.fillStyle = '#9f20dfaa';
 						break;
 					case Colors.BLUE:
-						ctx.fillStyle = '#2020df';
+						ctx.fillStyle = '#2020dfaa';
 						break;
 					case Colors.ORANGE:
-						ctx.fillStyle = '#df9f20';
+						ctx.fillStyle = '#df9f20aa';
 						break;
 					case Colors.GREEN:
-						ctx.fillStyle = '#20df20';
+						ctx.fillStyle = '#20df20aa';
 						break;
 					case Colors.RED:
-						ctx.fillStyle = '#df2020';
+						ctx.fillStyle = '#df2020aa';
 						break;
 					default:
-						ctx.fillStyle = 'black';
+						ctx.fillStyle = '#000000aa';
 				}
+				ctx.drawImage(this.img, j*30, i*30);
 				ctx.fillRect(j*30, i*30, 29, 29);
 			}
 		}
@@ -188,7 +193,7 @@ class Game{
 		for(let i = this.field.length - 1; i > 0; i--){
 			let fullRow = true;
 			for(let j = 0; j < this.field[i].length; j++){
-				if(this.field[i][j] == 0){
+				if(this.field[i][j] === 0){
 					fullRow = false;
 					break;
 				}
@@ -237,19 +242,19 @@ const update = () =>{
 
 		switch(rowCount){
 			case 1:
-				game.points += 100;
+				game.score += 100;
 				break;
 			case 2:
-				game.points += 200;
+				game.score += 200;
 				break;
 			case 3:
-				game.points += 500;
+				game.score += 500;
 				break;
 			case 4:
-				game.points += 800;
+				game.score += 800;
 				break;
 		}
-		points.innerHTML = game.points;
+		score.innerHTML = game.score;
 		const newTetromino = game.randomTetromino();
 		
 		game.currentTetromino = new Tetromino(structuredClone(newTetromino.blocks),
@@ -257,9 +262,11 @@ const update = () =>{
 			newTetromino.color);
 	}
 	if(game.isCollisionDown(game.currentTetromino) || game.isCollisionSide(game.currentTetromino)){
-		points.innerHTML = "GAME OVER";
+		score.innerHTML = "GAME OVER";
 		cancelAnimationFrame(reqId);
 		reqId = undefined;
+		ctx.fillStyle = '#00000050';
+		ctx.fillRect(0, 0, 300, 600);
 	}
 	game.place(game.currentTetromino);
 }
@@ -282,7 +289,7 @@ stopButton.addEventListener('click', () =>{
 	audio.pause();
 });
 
-resetButton.addEventListener('click', () =>init());
+resetButton.addEventListener('click', () => init());
 
 let keyDown = false;
 const keyEventHandler = (e) =>{
@@ -290,6 +297,8 @@ const keyEventHandler = (e) =>{
 		return;
 	switch(e.key){
 		case 'ArrowUp':
+			if(game.currentTetromino.color === Colors.YELLOW)
+				return;
 			keyDown = true;
 			game.remove(game.currentTetromino);
 			game.currentTetromino.rotate(phi);
@@ -336,21 +345,43 @@ body.addEventListener('keyup', () => {
 	keyDown = false;
 });
 
+body.addEventListener('mouseup', () => {
+	volume.blur();
+});
+
+audio.volume = 1.0;
+volume.addEventListener('input', (e) => {
+	audio.volume = e.target.value;
+});
+
+async function loadImage(imageUrl) {
+	let img;
+	const imageLoadPromise = new Promise(resolve => {
+		img = new Image();
+		img.onload = resolve;
+		img.src = imageUrl;
+	});
+
+	await imageLoadPromise;
+	return img;
+}
+
 let start = 0;
-let delta = 500;
 const step = (timestamp) =>{
 	const elapsed = timestamp - start;
 	if(elapsed > delta){
 		update();
 		start = timestamp;
 	}
-	ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-	game.renderField();
-	if(reqId !== undefined)
+	if(reqId !== undefined){
+		ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+		game.renderField();
 		reqId = requestAnimationFrame(step);
+	}
 };
 
-const init = () =>{
+const init = async() =>{
+	delta = 500;
 	game = new Game();
 	const randomTetromino = game.randomTetromino();
 
@@ -359,7 +390,8 @@ const init = () =>{
 		randomTetromino.color);
 
 	previousState = game.currentTetromino;
-	points.innerHTML = game.points;
+	score.innerHTML = game.score;
+	game.img = await loadImage('block2.png');
 	game.renderField();
 	game.place(game.currentTetromino);
 	game.renderField();

@@ -1,5 +1,5 @@
 body{
-	background-color: #ffffff;
+	background-color: #202020;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -14,16 +14,53 @@ body{
 }
 
 #canvas{
-	background-color: #101010;
+	background-color: #202020;
+}
+
+#buttons{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-top: 5px;
+}
+
+#volume{
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+}
+
+.slider::-webkit-slider-thumb {
+	-webkit-appearance: none; /* Override default look */
+	appearance: none;
+	width: 25px; /* Set a specific slider handle width */
+	height: 25px; /* Slider handle height */
+	background: #04AA6D; /* Green background */
+	cursor: pointer; /* Cursor on hover */
+}
+  
+.slider::-moz-range-thumb {
+	width: 25px;
+	height: 25px;
+	background-image: url(block.png);
+	cursor: pointer;
+	border-color: #202020;
+	border-radius: 0px;
 }
 
 #buttons button{
-	margin-left: 10px;
+	width: 100px;
+	margin-left: 20px;
 	margin-bottom: 10px;
-	padding: 5px;
+	margin-top: 5px;
+	padding: 10px;
 	border: none;
-	background-color: #000000;
-	color: white;
+	background-color: #bbbbbb;
+	color: black;
+	font-size: 16px;
+	font-family: Arial, Helvetica, sans-serif;
+	border-radius: 4px;
 }
 
 #buttons button:hover{
@@ -32,7 +69,8 @@ body{
 }
 
 label{
-	color: black;
+	color: #ffffff;
+	margin: 5px;
 }
 
 img{
