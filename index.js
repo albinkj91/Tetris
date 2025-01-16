@@ -57,10 +57,12 @@ class Mat2{
 
 
 class Tetromino{
-	constructor(blocks, position, color){
+	constructor(blocks, position, color, midOffsetX, midOffsetY){
 		this.blocks = blocks;
 		this.position = position;
 		this.color = color;
+		this.midOffsetX = midOffsetX;
+		this.midOffsetY = midOffsetY;
 	}
 
 	rotate(phi){
@@ -84,13 +86,13 @@ class Game{
 
 		this.startPos1 = new Vec2(4, 0);
 		this.startPos2 = new Vec2(4, 1);
-		this.o = new Tetromino(this.oBlocks, this.startPos1, Colors.YELLOW);
-		this.i = new Tetromino(this.iBlocks, this.startPos1, Colors.TEAL);
-		this.t = new Tetromino(this.tBlocks, this.startPos2, Colors.PURPLE);
-		this.j = new Tetromino(this.jBlocks, this.startPos2, Colors.BLUE);
-		this.l = new Tetromino(this.lBlocks, this.startPos2, Colors.ORANGE);
-		this.s = new Tetromino(this.sBlocks, this.startPos1, Colors.GREEN);
-		this.z = new Tetromino(this.zBlocks, this.startPos1, Colors.RED);
+		this.o = new Tetromino(this.oBlocks, this.startPos1, Colors.YELLOW, -30, -30);
+		this.i = new Tetromino(this.iBlocks, this.startPos1, Colors.TEAL, -30, -15);
+		this.t = new Tetromino(this.tBlocks, this.startPos2, Colors.PURPLE, -15, 0);
+		this.j = new Tetromino(this.jBlocks, this.startPos2, Colors.BLUE, -15, 0);
+		this.l = new Tetromino(this.lBlocks, this.startPos2, Colors.ORANGE, -15, 0);
+		this.s = new Tetromino(this.sBlocks, this.startPos1, Colors.GREEN, -15, -30);
+		this.z = new Tetromino(this.zBlocks, this.startPos1, Colors.RED, -15, -30);
 
 		this.tetrominos = [this.i, this.o, this.t, this.j, this.l, this.s, this.z];
 		this.img;
@@ -164,7 +166,7 @@ class Game{
 		}
 	}
 
-	drawBlock(color, x, y, ctx){
+	drawBlock(color, dx, dy, x, y, ctx){
 		switch(color){
 			case Colors.TEAL:
 				ctx.fillStyle = '#20dfdfaa';
@@ -190,14 +192,14 @@ class Game{
 			default:
 				ctx.fillStyle = '#000000aa';
 		}
-		ctx.drawImage(this.img, x*30, y*30);
-		ctx.fillRect(x*30, y*30, 29, 29);
+		ctx.drawImage(this.img, dx + x*30, dy + y*30);
+		ctx.fillRect(dx + x*30, dy + y*30, 29, 29);
 	}
 
 	renderField(){
 		for(let i = 0; i < this.field.length; i++){
 			for(let j = 0; j < this.field[i].length; j++){
-				this.drawBlock(this.field[i][j], j, i, ctx);
+				this.drawBlock(this.field[i][j], 0, 0, j, i, ctx);
 			}
 		}
 	}
@@ -205,7 +207,11 @@ class Game{
 	randomTetromino(){
 		const random = Math.floor(Math.random() * 7);
 		const temp = this.tetrominos[random];
-		return new Tetromino(structuredClone(temp.blocks), temp.position, temp.color);
+		return new Tetromino(structuredClone(temp.blocks),
+			temp.position,
+			temp.color,
+			temp.midOffsetX,
+			temp.midOffsetY);
 	}
 
 	checkRows(){
@@ -237,11 +243,13 @@ class Game{
 
 	setUpcomingTetromino(){
 		this.upcomingTetromino = this.randomTetromino();
-		upcomingTetrominoCtx.clearRect(0, 0, 150, 200);
+		upcomingTetrominoCtx.clearRect(0, 0, 180, 200);
+		const offsetX = 90 + this.upcomingTetromino.midOffsetX;
+		const offsetY = 100 + this.upcomingTetromino.midOffsetY;
 		for(let i = 0; i < this.upcomingTetromino.blocks.length; i++){
-			const x = this.upcomingTetromino.blocks[i].x + 2;
-			const y = this.upcomingTetromino.blocks[i].y + 2;
-			this.drawBlock(this.upcomingTetromino.color, x, y, upcomingTetrominoCtx);
+			const x = this.upcomingTetromino.blocks[i].x;
+			const y = this.upcomingTetromino.blocks[i].y;
+			this.drawBlock(this.upcomingTetromino.color, offsetX, offsetY, x, y, upcomingTetrominoCtx);
 		}
 	}
 }
@@ -251,7 +259,9 @@ const update = () =>{
 		new Vec2(
 			game.currentTetromino.position.x,
 			game.currentTetromino.position.y),
-		game.currentTetromino.color);
+		game.currentTetromino.color,
+		game.currentTetromino.midOffsetX,
+		game.currentTetromino.midOffsetY);
 
 	game.currentTetromino.position.y += 1;
 	game.remove(previousState);
@@ -287,7 +297,9 @@ const update = () =>{
 		
 		game.currentTetromino = new Tetromino(structuredClone(game.upcomingTetromino.blocks),
 			new Vec2(game.upcomingTetromino.position.x, game.upcomingTetromino.position.y),
-			game.upcomingTetromino.color);
+			game.upcomingTetromino.color,
+			game.upcomingTetromino.midOffsetX,
+			game.upcomingTetromino.midOffsetY);
 		game.setUpcomingTetromino();
 	}
 	if(game.isCollisionDown(game.currentTetromino) || game.isCollisionSide(game.currentTetromino)){
@@ -421,7 +433,9 @@ const init = async() =>{
 
 	game.currentTetromino = new Tetromino(structuredClone(randomTetromino.blocks),
 		new Vec2(randomTetromino.position.x, randomTetromino.position.y),
-		randomTetromino.color);
+		randomTetromino.color,
+		randomTetromino.midOffsetX,
+		randomTetromino.midOffsetY);
 
 
 	previousState = game.currentTetromino;

@@ -12,9 +12,9 @@ body{
 }
 
 #upcoming{
-	height: 150px;
+	height: 200px;
 	margin-top: 30px;
-	border: #00000050 outset 5px;
+	border: #00000050 solid 5px;
 	background-color: #505050;
 }
 
