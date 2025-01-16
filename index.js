@@ -307,8 +307,11 @@ const update = () =>{
 		game.state = GameState.GAME_OVER;
 		cancelAnimationFrame(reqId);
 		reqId = undefined;
-		ctx.fillStyle = '#00000090';
+		ctx.fillStyle = '#000000aa';
 		ctx.fillRect(0, 0, 300, 600);
+		ctx.fillStyle = '#df2020';
+		ctx.font = '48px serif';
+		ctx.fillText("GAME OVER", 8, 300);
 		playButton.id = 'play';
 		playImg.src = 'assets/play.png';
 		audio.pause();
@@ -444,6 +447,7 @@ const init = async() =>{
 		game.img = await loadImage('assets/block2.png');
 	}
 	game.setUpcomingTetromino();
+	ctx.clearRect(0, 0, 300, 600);
 	game.renderField();
 	game.place(game.currentTetromino);
 	game.renderField();
