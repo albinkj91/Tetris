@@ -18,6 +18,7 @@ let game;
 let reqId;
 let previousState;
 let resetKey;
+let keyDown = false;
 
 const GameState = Object.freeze({
 	START: 1,
@@ -317,7 +318,7 @@ const update = () =>{
 
 playButton.addEventListener('click', async () =>{
 	body.addEventListener('keydown', keyEventHandler);
-	if(reqId === undefined){
+	if(!reqId){
 		if(game.state === GameState.GAME_OVER){
 			await init();
 			game.state = GameState.RUNNING;
@@ -337,7 +338,6 @@ playButton.addEventListener('click', async () =>{
 
 restartButton.addEventListener('click', () => init());
 
-let keyDown = false;
 const keyEventHandler = (e) =>{
 	if(keyDown)
 		return;
@@ -419,7 +419,7 @@ const step = (timestamp) =>{
 		update();
 		start = timestamp;
 	}
-	if(reqId !== undefined){
+	if(reqId){
 		ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 		game.renderField();
 		reqId = requestAnimationFrame(step);
@@ -440,7 +440,7 @@ const init = async() =>{
 
 	previousState = game.currentTetromino;
 	score.innerHTML = game.score;
-	if(game.img === undefined){
+	if(!game.img){
 		game.img = await loadImage('assets/block2.png');
 	}
 	game.setUpcomingTetromino();
