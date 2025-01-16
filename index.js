@@ -273,7 +273,7 @@ const update = () =>{
 		while(row !== 0){
 			rowCount++;
 			if(delta > 50){
-				delta -= 25;
+				delta -= 10;
 			}
 			game.clear(row);
 			row = game.checkRows();
